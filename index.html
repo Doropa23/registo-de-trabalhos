@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plano de Trabalhos - Sistema Completo</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root {
+  --bg: #f7f6f3;
+  --surface: #ffffff;
+  --ink: #18171a;
+  --ink2: #6b6877;
+  --ink3: #a09eaa;
+  --border: #e4e2ec;
+  --border2: #cccad8;
+  --accent: #3d2fa0;
+  --accent-bg: #efeffd;
+  --success: #1a7a4a;
+  --success-bg: #eaf6ef;
+  --warning: #8a5a00;
+  --warning-bg: #fff8e1;
+  --danger: #b02020;
+  --danger-bg: #fdf0f0;
+  --pending-bg: #f4f3ff;
+  --r: 8px;
+  --r2: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  font-size: 14px;
+}
+
+/* HEADER */
+.header {
+  background: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 28px;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.header-mark {
+  width: 32px; height: 32px;
+  background: var(--accent);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; color: #fff; font-size: 13px;
+  letter-spacing: -0.5px;
+  flex-shrink: 0;
+}
+
+.header-title {
+  font-weight: 600;
+  color: #fff;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+}
+
+.header-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-stat {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+}
+
+.header-stat strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* TABS - 4 ABAS */
+.tabs-wrap {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  display: flex;
+  gap: 0;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  padding: 14px 22px;
+  border: none;
+  background: transparent;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink2);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.tab-btn svg { width: 15px; height: 15px; }
+
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.tab-btn:hover:not(.active) {
+  color: var(--ink);
+  background: var(--bg);
+}
+
+/* MAIN */
+.main { max-width: 1280px; margin: 0 auto; padding: 28px 28px 60px; }
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* FORM CARD */
+.form-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  overflow: hidden;
+}
+
+.form-card-head {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.form-card-head h2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.form-card-head p {
+  font-size: 12px;
+  color: var(--ink2);
+  margin-top: 1px;
+}
+
+.section-icon {
+  width: 34px; height: 34px;
+  background: var(--accent-bg);
+  border-radius: var(--r);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.section-icon svg { width: 17px; height: 17px; color: var(--accent); }
+
+.form-body { padding: 24px; }
+
+.form-section { margin-bottom: 28px; }
+
+.section-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink3);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field.span2 { grid-column: span 2; }
+.field.span3 { grid-column: span 3; }
+.field.full { grid-column: 1 / -1; }
+
+label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ink2);
+}
+
+input, select, textarea {
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--bg);
+  outline: none;
+  transition: border-color 0.14s, background 0.14s;
+  width: 100%;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(61,47,160,0.08);
+}
+
+textarea { resize: vertical; min-height: 72px; }
+
+.hint {
+  font-size: 11px;
+  color: var(--ink3);
+  margin-top: 2px;
+}
+
+/* Status pills */
+.status-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.status-pill {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.14s;
+  background: transparent;
+  color: var(--ink2);
+}
+
+.status-pill:hover { border-color: var(--border2); color: var(--ink); }
+
+.status-pill.active-pill[data-v="pendente"] { background: var(--warning-bg); border-color: #e0a000; color: var(--warning); }
+.status-pill.active-pill[data-v="producao"] { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }
+.status-pill.active-pill[data-v="entregue"] { background: var(--success-bg); border-color: var(--success); color: var(--success); }
+.status-pill.active-pill[data-v="cancelado"] { background: var(--danger-bg); border-color: var(--danger); color: var(--danger); }
+
+.progress-info {
+  background: var(--pending-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 12px 16px;
+  font-size: 12px;
+  color: var(--ink2);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.progress-info svg { width: 16px; height: 16px; color: var(--accent); flex-shrink: 0; }
+
+.form-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* BUTTONS */
+.btn {
+  padding: 8px 18px;
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.14s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.btn svg { width: 14px; height: 14px; }
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.btn-primary:hover { background: #2d2082; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink2);
+}
+.btn-ghost:hover { background: var(--bg); color: var(--ink); }
+
+.btn-danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-color: #f0c0c0;
+}
+.btn-danger:hover { background: var(--danger); color: #fff; }
+
+.btn-success {
+  background: var(--success-bg);
+  color: var(--success);
+  border-color: #b0dfc0;
+}
+.btn-success:hover { background: var(--success); color: #fff; }
+
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+/* TABELA */
+.table-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.search-wrap svg {
+  position: absolute;
+  left: 10px; top: 50%;
+  transform: translateY(-50%);
+  width: 14px; height: 14px;
+  color: var(--ink3);
+  pointer-events: none;
+}
+
+.search-wrap input {
+  padding-left: 32px;
+}
+
+.filter-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-group select {
+  width: auto;
+  min-width: 130px;
+}
+
+.tbl-meta {
+  font-size: 12px;
+  color: var(--ink2);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  overflow: hidden;
+}
+
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.tbl thead tr {
+  background: var(--ink);
+}
+
+.tbl th {
+  padding: 11px 14px;
+  text-align: left;
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(255,255,255,0.7);
+  white-space: nowrap;
+}
+
+.tbl td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  color: var(--ink);
+}
+
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tbody tr:hover td { background: var(--bg); }
+
+.ot-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--accent-bg);
+  color: var(--accent);
+  padding: 3px 8px;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+
+.badge {
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-pendente { background: var(--warning-bg); color: var(--warning); }
+.badge-producao { background: var(--accent-bg); color: var(--accent); }
+.badge-entregue { background: var(--success-bg); color: var(--success); }
+.badge-cancelado { background: var(--danger-bg); color: var(--danger); }
+
+.cell-edit {
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 2px 4px;
+  margin: -2px -4px;
+  transition: background 0.12s;
+  min-width: 60px;
+  display: inline-block;
+}
+
+.cell-edit:hover {
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.cell-empty {
+  color: var(--ink3);
+  font-style: italic;
+  font-size: 12px;
+}
+
+.cell-input {
+  border: 1.5px solid var(--accent);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 13px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  padding: 4px 6px;
+  border-radius: 5px;
+  width: 100%;
+  min-width: 90px;
+  outline: none;
+}
+
+.row-actions { display: flex; gap: 5px; white-space: nowrap; }
+
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--ink2);
+}
+
+.empty svg { width: 40px; height: 40px; color: var(--ink3); margin-bottom: 12px; }
+.empty p { font-size: 13px; }
+
+/* Backup Card */
+.backup-card, .relatorio-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.backup-card-head, .relatorio-card-head {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.backup-card-head h2, .relatorio-card-head h2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.backup-body, .relatorio-body {
+  padding: 24px;
+}
+
+.backup-actions {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.backup-preview {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 16px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  overflow-x: auto;
+  max-height: 300px;
+}
+
+.relatorio-filtros {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  align-items: flex-end;
+}
+
+.relatorio-filtros .field {
+  min-width: 150px;
+}
+
+.relatorio-resumo {
+  background: var(--accent-bg);
+  border-radius: var(--r);
+  padding: 16px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.resumo-item {
+  flex: 1;
+  text-align: center;
+}
+
+.resumo-item .numero {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent);
+  display: block;
+}
+
+.resumo-item .label {
+  font-size: 11px;
+  color: var(--ink2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  background: var(--ink);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: var(--r);
+  font-size: 13px;
+  font-weight: 500;
+  transform: translateY(16px);
+  opacity: 0;
+  transition: all 0.25s;
+  z-index: 200;
+  pointer-events: none;
+  max-width: 320px;
+}
+
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.ok { border-left: 3px solid #27ae60; }
+.toast.err { border-left: 3px solid var(--danger); }
+
+/* Modal */
+.modal-bg {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 100;
+  padding: 20px;
+  overflow-y: auto;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.modal-bg.open { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border-radius: var(--r2);
+  width: 100%;
+  max-width: 720px;
+  margin: 40px auto;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.modal-head {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-head h3 {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.modal-head .close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ink2);
+  padding: 4px;
+  border-radius: 5px;
+  display: flex;
+}
+
+.modal-head .close-btn:hover { background: var(--bg); color: var(--ink); }
+
+.modal-body { padding: 20px; }
+.modal-foot {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.tbl-scroll { overflow-x: auto; }
+
+@media (max-width: 700px) {
+  .main { padding: 16px; }
+  .header { padding: 0 16px; }
+  .tabs-wrap { padding: 0 8px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .field.span2, .field.span3 { grid-column: span 1; }
+}
+
+#pdf-container-helper {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 1100px;
+  background: white;
+  z-index: -1;
+}
+
+/* ===== Datas com calendário ===== */
+.date-wrap{position:relative;display:flex;align-items:center;width:100%}
+.date-wrap input[type=text]{padding-right:40px}
+.date-wrap.inl{display:inline-flex;min-width:160px;width:auto}
+.date-btn{position:absolute;right:4px;top:50%;transform:translateY(-50%);border:none;background:transparent;cursor:pointer;font-size:16px;padding:4px 7px;border-radius:6px;line-height:1}
+.date-btn:hover{background:var(--accent-bg)}
+.date-native{position:absolute;right:0;bottom:0;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0}
+input.data-erro{border-color:#c0392b!important}
+
+/* ===== Aba Visualização: mais larga e confortável ===== */
+body.tbl-wide .main{max-width:min(98vw,1900px);padding-left:16px;padding-right:16px}
+#panel-table .tbl{font-size:14px;min-width:1500px}
+#panel-table .tbl th{padding:14px 16px;font-size:12px}
+#panel-table .tbl td{padding:15px 16px;line-height:1.5}
+#panel-table .tbl td:nth-child(1),#panel-table .tbl td:nth-child(2),#panel-table .tbl td:nth-child(3),
+#panel-table .tbl td:nth-child(7),#panel-table .tbl td:nth-child(10),#panel-table .tbl td:nth-child(11){white-space:nowrap}
+#panel-table .tbl td:nth-child(4){min-width:170px}
+#panel-table .tbl td:nth-child(5){min-width:260px}
+#panel-table .tbl td:nth-child(6){min-width:120px}
+#panel-table .tbl td:nth-child(8){min-width:150px}
+#panel-table .tbl td:nth-child(12){min-width:230px}
+#panel-table .tbl th:last-child{position:sticky;right:0;background:var(--ink)}
+#panel-table .tbl td:last-child{position:sticky;right:0;background:var(--surface);box-shadow:-6px 0 8px -6px rgba(0,0,0,.12)}
+/* Estado: texto completo visível */
+select.badge{width:auto;min-width:160px;padding:7px 30px 7px 12px;font-size:13px;white-space:nowrap;text-overflow:clip;cursor:pointer}
+#panel-table .tbl td:nth-child(9){min-width:180px;white-space:nowrap}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-mark">PT</div>
+  <div>
+    <div class="header-title">Plano de Trabalhos</div>
+  </div>
+  <div class="header-right">
+    <div onclick="configurarURL()" title="Clique para configurar Google Sheets"
+      style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:4px 10px;cursor:pointer">
+      <div id="net-dot" style="width:7px;height:7px;border-radius:50%;background:#e74c3c;transition:background .3s;flex-shrink:0"></div>
+      <span id="net-label" style="font-size:11px;color:rgba(255,255,255,.6);white-space:nowrap">Offline · Local</span>
+    </div>
+    <div class="header-stat" id="hstat">
+      Total: <strong id="h-total">0</strong> &nbsp;|&nbsp; Produção: <strong id="h-prod">0</strong> &nbsp;|&nbsp; Entregues: <strong id="h-ent">0</strong>
+    </div>
+  </div>
+</div>
+
+<div class="tabs-wrap">
+  <button class="tab-btn active" id="tb-form" onclick="switchTab('form')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="M8 14h4M8 18h8"/></svg>
+    Novo Registo
+  </button>
+  <button class="tab-btn" id="tb-table" onclick="switchTab('table')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+    Registos
+  </button>
+  <button class="tab-btn" id="tb-backup" onclick="switchTab('backup')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+    Backup
+  </button>
+  <button class="tab-btn" id="tb-relatorios" onclick="switchTab('relatorios')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12v3a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-3"/><path d="M12 2v12m-4-4l4 4 4-4"/></svg>
+    Relatórios
+  </button>
+</div>
+
+<div class="main">
+
+  <!-- ABA 1: FORMULÁRIO -->
+  <div id="panel-form" class="panel active">
+    <div class="progress-info">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      <span>Preencha os dados iniciais ao criar a OT. Quando a data de entrega for preenchida, o estado mudará automaticamente para "Entregue".</span>
+    </div>
+    <div class="form-card">
+      <div class="form-card-head">
+        <div class="section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <div><h2>Nova Ordem de Trabalho</h2><p>Preencha os dados iniciais da OT.</p></div>
+      </div>
+      <div class="form-body">
+        <div class="form-section">
+          <div class="section-title">Identificação</div>
+          <div class="form-grid">
+            <div class="field"><label>OT Nº *</label><input type="number" id="f-ot"></div>
+            <div class="field"><label>Data de Entrada *</label><input type="text" id="f-data-entrada" placeholder="dd/mm/aaaa" maxlength="10"></div>
+            <div class="field"><label>Mês</label><select id="f-mes"><option value="">—</option><option>JANEIRO</option><option>FEVEREIRO</option><option>MARÇO</option><option>ABRIL</option><option>MAIO</option><option>JUNHO</option><option>JULHO</option><option>AGOSTO</option><option>SETEMBRO</option><option>OUTUBRO</option><option>NOVEMBRO</option><option>DEZEMBRO</option></select></div>
+            <div class="field"><label>Cliente *</label><input type="text" id="f-cliente"></div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="section-title">Trabalho</div>
+          <div class="form-grid">
+            <div class="field span2"><label>Descrição</label><input type="text" id="f-descricao"></div>
+            <div class="field"><label>Papel/Material</label><input type="text" id="f-papel"></div>
+            <div class="field"><label>Quantidade</label><input type="number" id="f-qtd"></div>
+            <div class="field span2"><label>Tamanho</label><input type="text" id="f-tamanho"></div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="section-title">Estado inicial</div>
+          <div class="status-pills">
+            <button class="status-pill active-pill" data-v="pendente" onclick="selectStatus(this)">⏳ Pendente</button>
+            <button class="status-pill" data-v="producao" onclick="selectStatus(this)">⚙️ Produção</button>
+            <button class="status-pill" data-v="entregue" onclick="selectStatus(this)">✅ Entregue</button>
+            <button class="status-pill" data-v="cancelado" onclick="selectStatus(this)">✗ Cancelado</button>
+          </div>
+          <input type="hidden" id="f-status" value="pendente">
+        </div>
+        <div class="form-section">
+          <div class="section-title">Entrega & Guia</div>
+          <div class="form-grid">
+            <div class="field"><label>Data Entrega</label><input type="text" id="f-data-entrega" placeholder="dd/mm/aaaa" maxlength="10"></div>
+            <div class="field"><label>Nº Guia</label><input type="text" id="f-guia"></div>
+            <div class="field full"><label>Observações</label><textarea id="f-obs"></textarea></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-footer">
+        <button class="btn btn-ghost" onclick="limparForm()">Limpar</button>
+        <button class="btn btn-primary" onclick="salvar()">Guardar OT</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABA 2: TABELA DE REGISTOS -->
+  <div id="panel-table" class="panel">
+    <div class="table-header">
+      <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><input type="text" id="srch" placeholder="Pesquisar..." oninput="renderTabela()"></div>
+      <div class="filter-group"><select id="flt-mes" onchange="renderTabela()"><option value="">Todos os meses</option><option>JANEIRO</option><option>FEVEREIRO</option><option>MARÇO</option><option>ABRIL</option><option>MAIO</option><option>JUNHO</option><option>JULHO</option><option>AGOSTO</option><option>SETEMBRO</option><option>OUTUBRO</option><option>NOVEMBRO</option><option>DEZEMBRO</option></select><select id="flt-status" onchange="renderTabela()"><option value="">Todos os estados</option><option value="pendente">Pendente</option><option value="producao">Produção</option><option value="entregue">Entregue</option><option value="cancelado">Cancelado</option></select></div>
+      <span class="tbl-meta" id="tbl-meta"></span>
+      <button class="btn btn-ghost btn-sm" onclick="exportXLSM()">📊 Exportar XLSM</button>
+    </div>
+    <div class="table-wrap"><div class="tbl-scroll"><table class="tbl"><thead><tr><th>OT</th><th>Mês</th><th>Entrada</th><th>Cliente</th><th>Descrição</th><th>Papel</th><th>Qtd</th><th>Tamanho</th><th>Estado</th><th>Dt. Entrega</th><th>Guia</th><th>Obs</th><th>Ações</th></tr></thead><tbody id="tbody"></tbody></table></div><div id="empty" class="empty" style="display:none"><p>Nenhum registo encontrado.</p></div></div>
+    <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-danger btn-sm" onclick="limparTudo()">🗑️ Apagar todos</button></div>
+  </div>
+
+  <!-- ABA 3: BACKUP -->
+  <div id="panel-backup" class="panel">
+    <div class="backup-card">
+      <div class="backup-card-head"><div class="section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg></div><h2>Backup e Restauro de Dados</h2></div>
+      <div class="backup-body">
+        <div class="backup-actions">
+          <button class="btn btn-primary" onclick="fazerBackup()">💾 Fazer Backup (JSON)</button>
+          <button class="btn btn-ghost" onclick="restaurarBackup()">📂 Restaurar Backup</button>
+          <input type="file" id="backup-file" accept=".json" style="display:none" onchange="carregarBackup(this)">
+        </div>
+        <div class="backup-preview" id="backup-preview">Clique em "Fazer Backup" para exportar os dados.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABA 4: RELATÓRIOS -->
+  <div id="panel-relatorios" class="panel">
+    <div class="relatorio-card">
+      <div class="relatorio-card-head"><div class="section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12v3a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-3"/><path d="M12 2v12m-4-4l4 4 4-4"/></svg></div><h2>Gerar Relatórios</h2></div>
+      <div class="relatorio-body">
+        <div class="relatorio-filtros">
+          <div class="field"><label>Filtrar por Mês</label><select id="rel-mes"><option value="">Todos</option><option>JANEIRO</option><option>FEVEREIRO</option><option>MARÇO</option><option>ABRIL</option><option>MAIO</option><option>JUNHO</option><option>JULHO</option><option>AGOSTO</option><option>SETEMBRO</option><option>OUTUBRO</option><option>NOVEMBRO</option><option>DEZEMBRO</option></select></div>
+          <div class="field"><label>Filtrar por Status</label><select id="rel-status"><option value="">Todos</option><option value="pendente">Pendente</option><option value="producao">Em Produção</option><option value="entregue">Entregue</option><option value="cancelado">Cancelado</option></select></div>
+          <div class="field"><label>Filtrar por Ano</label><select id="rel-ano"><option value="">Todos</option><option>2024</option><option>2025</option><option>2026</option></select></div>
+          <button class="btn btn-primary" onclick="gerarRelatorio()">🔍 Gerar Resumo</button>
+          <button class="btn btn-success" onclick="exportarRelatorioPDF()">📄 Exportar Relatório PDF</button>
+        </div>
+        <div class="relatorio-resumo" id="relatorio-resumo"></div>
+        <div class="table-wrap"><div class="tbl-scroll"><table class="tbl"><thead><tr><th>OT</th><th>Cliente</th><th>Descrição</th><th>Estado</th><th>Data Entrega</th><th>Guia</th></tr></thead><tbody id="relatorio-tbody"></tbody></table></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Edição -->
+<div class="modal-bg" id="modal-bg"><div class="modal"><div class="modal-head"><h3>Editar Registo</h3><button class="close-btn" onclick="fecharModal()">✕</button></div><div class="modal-body"><div class="form-grid"><div class="field"><label>OT</label><input type="number" id="e-ot"></div><div class="field"><label>Data Entrada</label><input type="text" id="e-data-entrada" placeholder="dd/mm/aaaa" maxlength="10"></div><div class="field"><label>Mês</label><select id="e-mes"><option>JANEIRO</option><option>FEVEREIRO</option><option>MARÇO</option><option>ABRIL</option><option>MAIO</option><option>JUNHO</option><option>JULHO</option><option>AGOSTO</option><option>SETEMBRO</option><option>OUTUBRO</option><option>NOVEMBRO</option><option>DEZEMBRO</option></select></div><div class="field"><label>Cliente</label><input type="text" id="e-cliente"></div><div class="field span2"><label>Descrição</label><input type="text" id="e-descricao"></div><div class="field"><label>Papel</label><input type="text" id="e-papel"></div><div class="field"><label>Quantidade</label><input type="number" id="e-qtd"></div><div class="field span2"><label>Tamanho</label><input type="text" id="e-tamanho"></div><div class="field"><label>Estado</label><select id="e-status"><option value="pendente">Pendente</option><option value="producao">Produção</option><option value="entregue">Entregue</option><option value="cancelado">Cancelado</option></select></div><div class="field"><label>Data Entrega</label><input type="text" id="e-data-entrega" placeholder="dd/mm/aaaa" maxlength="10"></div><div class="field"><label>Guia</label><input type="text" id="e-guia"></div><div class="field full"><label>Observações</label><textarea id="e-obs"></textarea></div></div></div><div class="modal-foot"><button class="btn btn-ghost" onclick="fecharModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarEdicao()">Guardar</button></div></div></div>
+
+<!-- Modal PIN (Backup) -->
+<div class="modal-bg" id="modal-pin"><div class="modal" style="max-width:380px"><div class="modal-head"><h3>🔒 Acesso Restrito</h3><button class="close-btn" onclick="fecharPin()">✕</button></div><div class="modal-body"><p style="font-size:13px;margin-bottom:12px">Introduza o PIN para aceder ao Backup.</p><input type="password" id="pin-input" placeholder="PIN" maxlength="10" inputmode="numeric" autocomplete="off" style="text-align:center;letter-spacing:4px;font-size:18px" onkeydown="if(event.key==='Enter')confirmarPin()"><div id="pin-erro" style="display:none;color:#c0392b;font-size:12px;margin-top:8px;text-align:center">PIN incorrecto. Tente novamente.</div></div><div class="modal-foot"><button class="btn btn-ghost" onclick="fecharPin()">Cancelar</button><button class="btn btn-primary" onclick="confirmarPin()">Entrar</button></div></div></div>
+
+<div class="toast" id="toast"></div>
+<div id="pdf-container-helper"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  CONFIGURAÇÃO — Cole o seu URL do Apps Script aqui:
+// ══════════════════════════════════════════════════════════════
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzeFGaCToyfhIgjHNP0Fx1oCp3JRyXMmjZiwGdk8TXXuypoBekm-5behaY45sxrPbVQYg/exec';
+// ══════════════════════════════════════════════════════════════
+
+const KEY = 'pt_dados_v2';
+let editIdx = null;
+let activeFiltered = [];
+let isSyncing = false;
+
+// ── LocalStorage ──────────────────────────────────────────────
+function getData()  { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
+function setData(d) { localStorage.setItem(KEY, JSON.stringify(d)); updateHeader(); }
+
+// ── Indicador online/offline ──────────────────────────────────
+function setOnlineStatus(online, msg) {
+  const dot = document.getElementById('net-dot');
+  const lbl = document.getElementById('net-label');
+  if (!dot) return;
+  dot.style.background = online ? '#27ae60' : (online === null ? '#e67e00' : '#e74c3c');
+  lbl.textContent = msg || (online ? 'Online · Sheets' : 'Offline · Local');
+}
+
+// ── Chamadas ao Apps Script ───────────────────────────────────
+async function gsGet() {
+  if (!SCRIPT_URL) throw new Error('URL não configurado');
+  const r = await fetch(SCRIPT_URL, { redirect: 'follow' });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+
+async function gsPost(body) {
+  if (!SCRIPT_URL) throw new Error('URL não configurado');
+  const r = await fetch(SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(body),
+    redirect: 'follow'
+  });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+
+// ── Carregar dados do Sheets (ao abrir a aba tabela) ──────────
+async function carregarDoSheets() {
+  if (!SCRIPT_URL) { renderTabela(); return; }
+  setOnlineStatus(null, 'A carregar...');
+  try {
+    const online = await gsGet();
+    if (!Array.isArray(online)) throw new Error('Resposta inválida');
+    setData(online);
+    setOnlineStatus(true);
+    renderTabela();
+    toast('Dados actualizados do Google Sheets.', 'ok');
+  } catch {
+    setOnlineStatus(false, 'Offline · Local');
+    renderTabela();
+  }
+}
+
+// ── Configurar URL ─────────────────────────────────────────────
+function configurarURL() { /* URL já configurado no código */ }
+
+// ── Header ─────────────────────────────────────────────────────
+function updateHeader() {
+  const d = getData();
+  document.getElementById('h-total').textContent = d.length;
+  document.getElementById('h-prod').textContent = d.filter(r => r.status === 'producao').length;
+  document.getElementById('h-ent').textContent = d.filter(r => r.status === 'entregue').length;
+}
+
+
+/* ══ PIN do Backup ══ */
+const BACKUP_PIN = '654321';
+let _backupOk = false;
+function pedirPin() {
+  document.getElementById('pin-input').value = '';
+  document.getElementById('pin-erro').style.display = 'none';
+  document.getElementById('modal-pin').classList.add('open');
+  setTimeout(() => document.getElementById('pin-input').focus(), 50);
+}
+function fecharPin() { document.getElementById('modal-pin').classList.remove('open'); }
+function confirmarPin() {
+  const inp = document.getElementById('pin-input');
+  if (inp.value.trim() === BACKUP_PIN) { _backupOk = true; fecharPin(); switchTab('backup'); }
+  else { document.getElementById('pin-erro').style.display = 'block'; inp.value = ''; inp.focus(); }
+}
+document.getElementById('modal-pin').addEventListener('click', e => { if (e.target.id === 'modal-pin') fecharPin(); });
+
+/* ══ Datas: formatação dd/mm/aaaa, validação e calendário (só no editor) ══ */
+const _MESES_EN = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+function _p2(n) { return String(n).padStart(2, '0'); }
+function fmtData(v) {
+  if (v === null || v === undefined || v === '') return '';
+  if (v instanceof Date) return isNaN(v) ? '' : _p2(v.getDate()) + '/' + _p2(v.getMonth() + 1) + '/' + v.getFullYear();
+  const s = String(v).trim(); let m;
+  if (!s) return '';
+  if ((m = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/))) return _p2(m[1]) + '/' + _p2(m[2]) + '/' + m[3];
+  if ((m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/))) return m[3] + '/' + m[2] + '/' + m[1];
+  if ((m = s.match(/^[A-Za-z]{3},? ([A-Za-z]{3}) (\d{1,2}) (\d{4})/)) && (m[1] in _MESES_EN))
+    return _p2(m[2]) + '/' + _p2(_MESES_EN[m[1]] + 1) + '/' + m[3];       // "Sat Jan 10 2026 00:00:00 GMT+0200 (...)"
+  if (/^\d{4}-\d{2}-\d{2}T/.test(s)) { const d = new Date(s); if (!isNaN(d)) return fmtData(d); }
+  return s;
+}
+function dataValida(s) {
+  if (!s) return true;
+  const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/); if (!m) return false;
+  const d = +m[1], mo = +m[2], y = +m[3];
+  if (y < 1900 || y > 2100 || mo < 1 || mo > 12 || d < 1) return false;
+  return d <= new Date(y, mo, 0).getDate();
+}
+function maskData(el) {
+  el.setAttribute('inputmode', 'numeric'); el.maxLength = 10; el.placeholder = 'dd/mm/aaaa';
+  el.addEventListener('input', () => {
+    const d = el.value.replace(/\D/g, '').slice(0, 8);
+    el.value = d.length > 4 ? d.slice(0,2) + '/' + d.slice(2,4) + '/' + d.slice(4)
+             : d.length > 2 ? d.slice(0,2) + '/' + d.slice(2) : d;
+    el.classList.remove('data-erro');
+  });
+}
+function validarCamposData(inputs) {
+  for (const inp of inputs) {
+    inp.value = fmtData(inp.value);
+    if (!dataValida(inp.value)) {
+      inp.classList.add('data-erro'); inp.focus();
+      toast('Data inválida. Use o formato dd/mm/aaaa.', 'err');
+      return false;
+    }
+  }
+  return true;
+}
+function soNumeros(el) {
+  el.setAttribute('inputmode', 'numeric'); el.placeholder = 'Só números';
+  el.addEventListener('input', () => { el.value = el.value.replace(/\D/g, ''); });
+}
+function guiaValida(v) { return v === '' || /^\d+$/.test(v); }
+function attachDatePicker(inp, inline) {
+  if (!inp || inp.dataset.dp) return; inp.dataset.dp = '1';
+  inp.type = 'text'; maskData(inp);
+  const wrap = document.createElement('div'); wrap.className = 'date-wrap' + (inline ? ' inl' : '');
+  inp.parentNode.insertBefore(wrap, inp); wrap.appendChild(inp);
+  const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'date-btn'; btn.title = 'Abrir calendário'; btn.textContent = '📅';
+  const nat = document.createElement('input'); nat.type = 'date'; nat.className = 'date-native'; nat.tabIndex = -1;
+  btn.addEventListener('mousedown', e => e.preventDefault());
+  btn.addEventListener('click', () => {
+    inp._picking = true;
+    const f = fmtData(inp.value), m = f.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    nat.value = (m && dataValida(f)) ? `${m[3]}-${m[2]}-${m[1]}` : '';
+    try { nat.showPicker(); } catch (e) { nat.focus(); nat.click(); }
+  });
+  const fim = () => { inp._picking = false; inp.focus(); };
+  nat.addEventListener('change', () => {
+    if (nat.value) { const [y, mo, d] = nat.value.split('-'); inp.value = `${d}/${mo}/${y}`; inp.classList.remove('data-erro'); }
+    fim();
+  });
+  nat.addEventListener('cancel', fim);
+  nat.addEventListener('blur', () => setTimeout(() => { if (inp._picking) fim(); }, 200));
+  wrap.appendChild(btn); wrap.appendChild(nat);
+  return wrap;
+}
+
+function switchTab(t) {
+  if (t === 'backup' && !_backupOk) { pedirPin(); return; }
+  if (t !== 'backup') _backupOk = false;
+  document.body.classList.toggle('tbl-wide', t === 'table');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + t).classList.add('active');
+  document.getElementById('tb-' + t).classList.add('active');
+  if (t === 'table') carregarDoSheets();
+  if (t === 'backup') atualizarPreviewBackup();
+  if (t === 'relatorios') gerarRelatorio();
+}
+
+function selectStatus(el) {
+  document.querySelectorAll('.status-pill').forEach(p => p.classList.remove('active-pill'));
+  el.classList.add('active-pill');
+  document.getElementById('f-status').value = el.dataset.v;
+}
+
+// Funções de verificação automática removidas — estado é manual
+
+async function salvar() {
+  const ot = document.getElementById('f-ot').value.trim();
+  const cliente = document.getElementById('f-cliente').value.trim();
+  if (!ot && !cliente) { toast('Preencha OT ou Cliente.', 'err'); return; }
+  if (!validarCamposData([document.getElementById('f-data-entrada'), document.getElementById('f-data-entrega')])) return;
+  if (!guiaValida(document.getElementById('f-guia').value.trim())) { toast('Nº Guia: apenas números.', 'err'); document.getElementById('f-guia').focus(); return; }
+
+  const reg = {
+    id: String(Date.now()),
+    ot,
+    dataEntrada: document.getElementById('f-data-entrada').value,
+    mes: document.getElementById('f-mes').value,
+    cliente,
+    descricao: document.getElementById('f-descricao').value,
+    papel: document.getElementById('f-papel').value,
+    qtd: document.getElementById('f-qtd').value,
+    tamanho: document.getElementById('f-tamanho').value,
+    status: document.getElementById('f-status').value,
+    dataEntrega: document.getElementById('f-data-entrega').value,
+    guia: document.getElementById('f-guia').value,
+    obs: document.getElementById('f-obs').value,
+    criadoEm: new Date().toISOString()
+  };
+
+  // 1. Guarda localmente de imediato
+  const d = getData();
+  d.push(reg);
+  setData(d);
+  limparForm();
+  toast('A guardar...', 'ok');
+
+  // 2. Envia para Google Sheets
+  if (SCRIPT_URL) {
+    try {
+      const res = await gsPost({ action: 'create', data: reg });
+      if (res.ok) {
+        setOnlineStatus(true);
+        toast('OT guardada no Google Sheets! ✓', 'ok');
+      } else {
+        toast('Guardado localmente. Sheets: ' + (res.erro || 'erro'), 'err');
+      }
+    } catch {
+      setOnlineStatus(false, 'Offline · Local');
+      toast('Sem ligação — guardado localmente.', 'warn');
+    }
+  } else {
+    toast('OT guardada localmente. Configure o Sheets para sincronizar.', 'ok');
+  }
+}
+
+function limparForm() {
+  ['f-ot','f-data-entrada','f-mes','f-cliente','f-descricao','f-papel','f-qtd','f-tamanho','f-data-entrega','f-guia','f-obs'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  document.getElementById('f-status').value = 'pendente';
+  document.querySelectorAll('.status-pill').forEach(p => p.classList.remove('active-pill'));
+  document.querySelector('.status-pill[data-v="pendente"]').classList.add('active-pill');
+}
+
+function renderTabela() {
+  const all = getData();
+  const q = document.getElementById('srch').value.toLowerCase();
+  const mes = document.getElementById('flt-mes').value;
+  const st = document.getElementById('flt-status').value;
+  activeFiltered = all.filter(r => { const mq = !q || [r.cliente, r.descricao, r.papel, r.obs, String(r.ot), r.guia].some(v => v && v.toLowerCase().includes(q)); const mm = !mes || r.mes === mes; const ms = !st || r.status === st; return mq && mm && ms; });
+  document.getElementById('tbl-meta').textContent = activeFiltered.length + ' registo(s)';
+  const tbody = document.getElementById('tbody');
+  const empty = document.getElementById('empty');
+  if (!activeFiltered.length) { tbody.innerHTML = ''; empty.style.display = ''; return; }
+  empty.style.display = 'none';
+  tbody.innerHTML = activeFiltered.map((r, idx) => { const realIdx = all.indexOf(r); return `<tr><td><span class="ot-num">${r.ot || '—'}</span></td><td>${r.mes || '—'}</td><td>${fmtData(r.dataEntrada) || '—'}</td><td><strong>${r.cliente || '—'}</strong></td><td>${r.descricao || '—'}</td><td>${r.papel || '—'}</td><td>${r.qtd || '—'}</td><td>${r.tamanho || '—'}</td><td><select class="badge badge-${r.status}" onchange="updateField(${realIdx},'status',this.value,this)"><option value="pendente" ${r.status==='pendente'?'selected':''}>⏳ Pendente</option><option value="producao" ${r.status==='producao'?'selected':''}>⚙️ Produção</option><option value="entregue" ${r.status==='entregue'?'selected':''}>✅ Entregue</option><option value="cancelado" ${r.status==='cancelado'?'selected':''}>✗ Cancelado</option></select></td><td><span class="cell-edit" onclick="inlineEdit(this,${realIdx},'dataEntrega','text')">${fmtData(r.dataEntrega) || '—'}</span></td><td><span class="cell-edit" onclick="inlineEdit(this,${realIdx},'guia','text')">${r.guia || '—'}</span></td><td><span class="cell-edit" onclick="inlineEdit(this,${realIdx},'obs','text')">${r.obs || '—'}</span></td><td><div class="row-actions"><button class="btn btn-ghost btn-sm" onclick="abrirModal(${realIdx})">✏️</button><button class="btn btn-danger btn-sm" onclick="deletar(${realIdx})">🗑️</button></div></td></tr>`; }).join('');
+}
+
+function inlineEdit(span, idx, field, type) {
+  const data = getData();
+  const isDate = (field === 'dataEntrega' || field === 'dataEntrada');
+  const current = isDate ? fmtData(data[idx][field]) : (data[idx][field] || '');
+  const inp = document.createElement('input');
+  inp.type = isDate ? 'text' : type;
+  inp.value = current;
+  inp.className = 'cell-input';
+  span.replaceWith(inp);
+  if (isDate) attachDatePicker(inp, true);
+  if (field === 'guia') soNumeros(inp);
+  inp.focus();
+  inp.addEventListener('blur', () => {
+    if (inp._picking || inp._cancel) return;
+    if (isDate) {
+      const v = fmtData(inp.value);
+      if (!dataValida(v)) { toast('Data inválida. Use o formato dd/mm/aaaa.', 'err'); inp.classList.add('data-erro'); setTimeout(() => inp.focus(), 0); return; }
+      updateField(idx, field, v, null);
+    } else {
+      if (field === 'guia' && !guiaValida(inp.value.trim())) { toast('Nº Guia: apenas números.', 'err'); inp.value = inp.value.replace(/\D/g, ''); setTimeout(() => inp.focus(), 0); return; }
+      updateField(idx, field, inp.value.trim(), null);
+    }
+  });
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter') inp.blur();
+    if (e.key === 'Escape') { inp._cancel = true; renderTabela(); }
+  });
+}
+
+function updateField(idx, field, value, el) {
+  const data = getData();
+  const reg = data[idx];
+  data[idx][field] = value;
+  setData(data);
+  renderTabela();
+  toast('Actualizado.', 'ok');
+  // Sincroniza com Sheets em background
+  if (SCRIPT_URL && reg) {
+    gsPost({ action: 'update', data: { ...reg, [field]: value } })
+      .then(() => setOnlineStatus(true))
+      .catch(() => setOnlineStatus(false, 'Offline · Local'));
+  }
+}
+
+function deletar(idx) {
+  if (!confirm('Apagar este registo?')) return;
+  const d = getData();
+  const reg = d[idx];
+  d.splice(idx, 1);
+  setData(d);
+  renderTabela();
+  toast('Apagado.', 'ok');
+  if (SCRIPT_URL && reg) {
+    gsPost({ action: 'delete', id: reg.id })
+      .then(() => setOnlineStatus(true))
+      .catch(() => setOnlineStatus(false, 'Offline · Local'));
+  }
+}
+
+function limparTudo() {
+  if (!confirm('Apagar TODOS os registos? Esta acção não pode ser desfeita.')) return;
+  localStorage.removeItem(KEY);
+  updateHeader();
+  renderTabela();
+  toast('Todos apagados.', 'err');
+  if (SCRIPT_URL) {
+    gsPost({ action: 'deleteAll' })
+      .then(() => setOnlineStatus(true))
+      .catch(() => {});
+  }
+}
+
+function abrirModal(idx) { 
+  editIdx=idx; 
+  const r=getData()[idx]; 
+  document.getElementById('e-ot').value=r.ot||''; 
+  document.getElementById('e-data-entrada').value=fmtData(r.dataEntrada); 
+  document.getElementById('e-mes').value=r.mes||''; 
+  document.getElementById('e-cliente').value=r.cliente||''; 
+  document.getElementById('e-descricao').value=r.descricao||''; 
+  document.getElementById('e-papel').value=r.papel||''; 
+  document.getElementById('e-qtd').value=r.qtd||''; 
+  document.getElementById('e-tamanho').value=r.tamanho||''; 
+  document.getElementById('e-status').value=r.status||'pendente'; 
+  document.getElementById('e-data-entrega').value=fmtData(r.dataEntrega); 
+  document.getElementById('e-guia').value=r.guia||''; 
+  document.getElementById('e-obs').value=r.obs||''; 
+  document.getElementById('modal-bg').classList.add('open'); 
+}
+function fecharModal() { document.getElementById('modal-bg').classList.remove('open'); editIdx=null; }
+function salvarEdicao() { 
+  if (!validarCamposData([document.getElementById('e-data-entrada'), document.getElementById('e-data-entrega')])) return;
+  if (!guiaValida(document.getElementById('e-guia').value.trim())) { toast('Nº Guia: apenas números.', 'err'); document.getElementById('e-guia').focus(); return; }
+  const data = getData(); 
+  const updated = {...data[editIdx], 
+    ot: document.getElementById('e-ot').value, 
+    dataEntrada: document.getElementById('e-data-entrada').value, 
+    mes: document.getElementById('e-mes').value, 
+    cliente: document.getElementById('e-cliente').value, 
+    descricao: document.getElementById('e-descricao').value, 
+    papel: document.getElementById('e-papel').value, 
+    qtd: document.getElementById('e-qtd').value, 
+    tamanho: document.getElementById('e-tamanho').value, 
+    status: document.getElementById('e-status').value, 
+    dataEntrega: document.getElementById('e-data-entrega').value, 
+    guia: document.getElementById('e-guia').value, 
+    obs: document.getElementById('e-obs').value 
+  }; 
+  data[editIdx] = updated;
+  setData(data); 
+  fecharModal(); 
+  renderTabela(); 
+  toast('Actualizado!', 'ok');
+  if (SCRIPT_URL) {
+    gsPost({ action: 'update', data: updated })
+      .then(() => setOnlineStatus(true))
+      .catch(() => setOnlineStatus(false, 'Offline · Local'));
+  }
+}
+document.getElementById('modal-bg').addEventListener('click', e => { if(e.target === document.getElementById('modal-bg')) fecharModal(); });
+
+function exportXLSM() {
+  const data = getData();
+  if (!data.length) { toast('Sem dados.', 'err'); return; }
+  if (typeof XLSX === 'undefined') { toast('Biblioteca XLSX não carregada. Verifique a ligação à internet.', 'err'); return; }
+  const est = { pendente:'Pendente', producao:'Produção', entregue:'Entregue', cancelado:'Cancelado' };
+  const num = v => (v !== undefined && v !== null && String(v).trim() !== '' && !isNaN(v)) ? Number(v) : (v || '');
+  const hd = ['OT','Mês','Entrada','Cliente','Descrição','Papel','Qtd','Tamanho','Estado','Data Entrega','Guia','Observações'];
+  const rows = data.map(r => [num(r.ot), r.mes||'', fmtData(r.dataEntrada), r.cliente||'', r.descricao||'', r.papel||'', num(r.qtd), r.tamanho||'', est[r.status]||r.status||'', fmtData(r.dataEntrega), String(r.guia||''), r.obs||'']);
+  const ws = XLSX.utils.aoa_to_sheet([hd, ...rows]);
+  ws['!cols'] = [8,13,12,26,40,16,8,18,12,13,12,36].map(w => ({ wch: w }));
+  ws['!autofilter'] = { ref: ws['!ref'] };
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Plano de Trabalhos');
+  XLSX.writeFile(wb, `plano_trabalhos_${new Date().toISOString().slice(0,10)}.xlsm`, { bookType: 'xlsm' });
+  toast('XLSM exportado!', 'ok');
+}
+
+// BACKUP FUNCTIONS
+function fazerBackup() { if(!_backupOk){ pedirPin(); return; } const data=getData(); const backup={ data, dataExportacao: new Date().toISOString(), totalRegistos: data.length }; const json=JSON.stringify(backup,null,2); const blob=new Blob([json],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`backup_${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href); atualizarPreviewBackup(); toast('Backup criado!','ok'); }
+function restaurarBackup() { if(!_backupOk){ pedirPin(); return; } document.getElementById('backup-file').click(); }
+function carregarBackup(input) { if(!_backupOk){ pedirPin(); input.value=''; return; } const file=input.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=e=>{ try{ const backup=JSON.parse(e.target.result); const dados=backup.data || backup; if(Array.isArray(dados)){ setData(dados); toast('Backup restaurado com sucesso!','ok'); renderTabela(); atualizarPreviewBackup(); }else{ toast('Formato inválido.','err'); } }catch(err){ toast('Erro ao restaurar backup.','err'); } }; reader.readAsText(file); input.value=''; }
+function atualizarPreviewBackup() { const data=getData(); const preview=document.getElementById('backup-preview'); if(data.length){ preview.innerHTML=`<strong>📊 Estado actual dos dados:</strong><br>📋 Total de registos: ${data.length}<br>🕐 Última actualização: ${new Date().toLocaleString()}<br><br><strong>Pré-visualização:</strong><br><code>${JSON.stringify({ total:data.length, exemplo:data[0] },null,2).substring(0,500)}${data.length>1 ? '...' : ''}</code>`; }else{ preview.innerHTML='<strong>📊 Estado actual:</strong><br>Nenhum dado disponível. Crie alguns registos primeiro.'; } }
+
+// RELATÓRIOS FUNCTIONS
+function gerarRelatorio() { const data=getData(); const mes=document.getElementById('rel-mes').value; const status=document.getElementById('rel-status').value; const ano=document.getElementById('rel-ano').value; let filtrados=data.filter(r=>{ let ok=true; if(mes && r.mes!==mes) ok=false; if(status && r.status!==status) ok=false; if(ano && r.dataEntrada && !fmtData(r.dataEntrada).endsWith(ano)) ok=false; return ok; }); const total=filtrados.length; const pendentes=filtrados.filter(r=>r.status==='pendente').length; const producao=filtrados.filter(r=>r.status==='producao').length; const entregues=filtrados.filter(r=>r.status==='entregue').length; const cancelados=filtrados.filter(r=>r.status==='cancelado').length; document.getElementById('relatorio-resumo').innerHTML=`<div class="resumo-item"><span class="numero">${total}</span><span class="label">Total Registos</span></div><div class="resumo-item"><span class="numero">${pendentes}</span><span class="label">Pendentes</span></div><div class="resumo-item"><span class="numero">${producao}</span><span class="label">Em Produção</span></div><div class="resumo-item"><span class="numero">${entregues}</span><span class="label">Entregues</span></div><div class="resumo-item"><span class="numero">${cancelados}</span><span class="label">Cancelados</span></div>`; const tbodyRel=document.getElementById('relatorio-tbody'); if(!filtrados.length){ tbodyRel.innerHTML='<tr><td colspan="6">Nenhum registo encontrado com os filtros seleccionados.</td></tr>'; return filtrados; } tbodyRel.innerHTML=filtrados.map(r=>`<tr><td><span class="ot-num">${r.ot||'—'}</span></td><td><strong>${r.cliente||'—'}</strong></td><td>${r.descricao||'—'}</td><td><span class="badge badge-${r.status}">${r.status==='pendente'?'Pendente':r.status==='producao'?'Produção':r.status==='entregue'?'Entregue':'Cancelado'}</span></td><td>${fmtData(r.dataEntrega)||'—'}</td><td>${r.guia||'—'}</td></tr>`).join(''); return filtrados; }
+
+async function exportarRelatorioPDF() { const data=getData(); const mes=document.getElementById('rel-mes').value; const status=document.getElementById('rel-status').value; const ano=document.getElementById('rel-ano').value; let filtrados=data.filter(r=>{ let ok=true; if(mes && r.mes!==mes) ok=false; if(status && r.status!==status) ok=false; if(ano && r.dataEntrada && !fmtData(r.dataEntrada).endsWith(ano)) ok=false; return ok; }); if(!filtrados.length){ toast('Sem dados para o relatório.','err'); return; } toast('Gerando PDF...','ok'); try{ const container=document.getElementById('pdf-container-helper'); container.innerHTML=''; container.style.cssText='position:fixed;left:-9999px;top:0;width:1100px;background:white;padding:30px;font-family:\'IBM Plex Sans\',Arial,sans-serif;'; const dataAtual=new Date().toLocaleDateString('pt-PT'); const headerDiv=document.createElement('div'); headerDiv.style.cssText='margin-bottom:25px;border-bottom:3px solid #3d2fa0;padding-bottom:15px;'; headerDiv.innerHTML=`<h1 style="font-size:24px;margin:0 0 8px 0;">Relatório de Trabalhos</h1><div style="display:flex;justify-content:space-between;color:#6b6877;"><span><strong>Gerado:</strong> ${dataAtual}</span><span><strong>Total:</strong> ${filtrados.length}</span>${mes?`<span><strong>Mês:</strong> ${mes}</span>`:''}${status?`<span><strong>Status:</strong> ${status}</span>`:''}</div>`; container.appendChild(headerDiv); const table=document.createElement('table'); table.style.cssText='width:100%;border-collapse:collapse;font-size:10px;'; const thead=document.createElement('thead'); const headerRow=document.createElement('tr'); ['OT','Mês','Entrada','Cliente','Descrição','Papel','Qtd','Tamanho','Estado','Data Entrega','Guia','Observações'].forEach(h=>{ const th=document.createElement('th'); th.textContent=h; th.style.cssText='background:#18171a;color:white;padding:8px;border:1px solid #333;text-align:left;'; headerRow.appendChild(th); }); thead.appendChild(headerRow); table.appendChild(thead); const tbody=document.createElement('tbody'); filtrados.forEach(r=>{ const row=document.createElement('tr'); [r.ot||'—', r.mes||'—', r.dataEntrada||'—', r.cliente||'—', (r.descricao||'—').substring(0,50), r.papel||'—', r.qtd||'—', (r.tamanho||'—').substring(0,40), {pendente:'Pendente',producao:'Produção',entregue:'Entregue',cancelado:'Cancelado'}[r.status]||r.status, fmtData(r.dataEntrega)||'—', r.guia||'—', (r.obs||'—').substring(0,50)].forEach(dado=>{ const td=document.createElement('td'); td.textContent=dado; td.style.cssText='padding:6px;border:1px solid #ddd;'; row.appendChild(td); }); tbody.appendChild(row); }); table.appendChild(tbody); container.appendChild(table); const footer=document.createElement('div'); footer.style.cssText='margin-top:20px;padding-top:10px;border-top:1px solid #ddd;font-size:9px;color:#999;text-align:center;'; footer.innerHTML=`Documento gerado automaticamente · Plano de Trabalhos · ${new Date().toLocaleString('pt-PT')}`; container.appendChild(footer); await new Promise(r=>setTimeout(r,100)); const canvas=await html2canvas(container,{scale:2,backgroundColor:'#ffffff'}); const imgData=canvas.toDataURL('image/png'); const {jsPDF}=window.jspdf; const pdf=new jsPDF('p','mm','a4'); const imgWidth=210; const pageHeight=297; const imgHeight=(canvas.height*imgWidth)/canvas.width; let position=0; pdf.addImage(imgData,'PNG',0,position,imgWidth,imgHeight); let heightLeft=imgHeight-pageHeight; while(heightLeft>0){ position=heightLeft-imgHeight; pdf.addPage(); pdf.addImage(imgData,'PNG',0,position,imgWidth,imgHeight); heightLeft-=pageHeight; } pdf.save(`relatorio_${new Date().toISOString().slice(0,10)}.pdf`); toast('PDF gerado com sucesso!','ok'); container.innerHTML=''; }catch(err){ toast('Erro ao gerar PDF: '+err.message,'err'); } }
+
+function toast(msg,type){ const t=document.getElementById('toast'); t.textContent=msg; t.className='toast '+type+' show'; clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2800); }
+
+updateHeader();
+renderTabela();
+// Ligar ao Sheets ao arrancar
+if (SCRIPT_URL) carregarDoSheets();
+
+['f-data-entrada','f-data-entrega','e-data-entrada','e-data-entrega'].forEach(id => attachDatePicker(document.getElementById(id)));
+['f-guia','e-guia'].forEach(id => soNumeros(document.getElementById(id)));
+</script>
+</body>
+</html>
